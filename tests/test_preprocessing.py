@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from preprocessing import clean_names, clean_address, clean_city, clean_zipcode,hexaposte
+from preprocessing import clean_names, clean_address, clean_city, clean_zipcode,hexaposte,construire_adresses
 
 def test_clean_names():
     input_series = pd.Series([
@@ -102,5 +102,31 @@ def test_hexaposte():
     ])
 
     output_series = hexaposte(ville_series, zipcode_series)
+
+    pd.testing.assert_series_equal(output_series, expected_series)
+
+
+def test_construire_adresses():
+    address_series = pd.Series([
+        "12 AVENUE DES CHAMPS ELYSEES",    # Cas standard avec numéro
+        "RUE DE LA PAIX",                   # Cas sans numéro
+        "PLACE DE L OPERA",                 # Cas sans numéro
+        "9 BOULEVARD HAUSSMANN",         # Cas standard avec numéro
+        "CHEMIN INCONNU",        
+        "TOTO",            # Adresse sans type reconnu
+        None                                 # Adresse vide
+    ])
+
+    expected_series = pd.Series([
+        "12 AV DES CHAMPS ELYSEES",    # Avenue normalisée
+        "RUE DE LA PAIX",              # Rue normalisée
+        "PL DE L OPERA",             # Place normalisée
+        "9 BD HAUSSMANN",              # Boulevard normalisé
+        "CHE INCONNU", 
+        "TOTO",             # Pas de correspondance, l'adresse reste inchangée
+        None                         # None → doit rester None (ou NaN dans la série)
+    ])
+
+    output_series = construire_adresses(address_series)
 
     pd.testing.assert_series_equal(output_series, expected_series)

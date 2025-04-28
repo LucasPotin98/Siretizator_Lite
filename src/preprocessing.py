@@ -122,6 +122,74 @@ def hexaposte(ville_serie: pd.Series,zip_serie: pd.Series) -> pd.Series:
     # Si CP original est NaN, on prend celui trouvé via Hexaposte
     zip_complet = zip_serie.fillna(zip_trouve)
 
-    
-
     return zip_complet
+
+
+def construire_adresses(address_series):
+    """
+    Normalise et reconstruit les adresses à partir d'une série d'adresses.
+    
+    Args:
+        address_series (pd.Series): Série contenant les adresses brutes.
+
+    Returns:
+        pd.Series: Série contenant les adresses reconstruites et normalisées.
+    """
+    # Chargement des correspondances type de voie (chemin fixé en dur)
+    chemin_libelles = "data/raw/Libelle.csv"
+    libellesConvert = pd.read_csv(chemin_libelles, dtype=str)
+
+    # Copie de la série pour ne pas modifier l'original
+    address_clean = address_series.copy()
+
+    # Remplacement des types de voie
+    for idx, row in libellesConvert.iterrows():
+        Seekingpattern = r"\b" + row["Nom_Voie"] + r"\b"
+        Appliedpattern = row["Nom_Voie_Nomalise"] 
+        address_clean = address_clean.replace(regex=Seekingpattern, value=Appliedpattern)
+
+    # Compilation des motifs
+    listeLibel = "|".join(libellesConvert["Nom_Voie_Nomalise"])
+    endingschar = r"\b"
+
+    # Regex unique : optionnel numéro + type voie + libellé
+    reg = rf"(?:([0-9]+)\s)?({listeLibel})\s([A-Z0-9 ]+)({endingschar})"
+
+    # Extraction des composants
+    extracted = address_clean.str.extract(reg)
+    num_voie = extracted[0]
+    code_voie = extracted[1]
+    libel_voie = extracted[2]
+
+    # Reconstruction des adresses
+    adresse_finale = (
+        num_voie.fillna('') +
+        " " + 
+        code_voie.fillna('') + 
+        " " + 
+        libel_voie.fillna('')
+    ).str.strip()
+
+    # Si l'extraction a échoué, on remet l'adresse originale
+    adresse_finale = np.where(
+        (code_voie.isna()) | (libel_voie.isna()), 
+        address_clean, 
+        adresse_finale
+    )
+
+    return pd.Series(adresse_finale, index=address_series.index)
+    
+# Test de la fonction
+if __name__ == "__main__":
+    # Exemple d'utilisation
+    address_series = pd.Series([
+        "12 AVENUE DES CHAMPS ELYSEES",    # Cas standard avec numéro
+        "RUE DE LA PAIX",                   # Cas sans numéro
+        "PLACE DE L OPERA",                 # Cas sans numéro
+        "9 BOULEVARD HAUSSMANN ",         # Cas standard avec numéro
+        "CHEMIN INCONNU",                    # Adresse sans type reconnu
+        None                                 # Adresse vide
+    ])
+    
+    cleaned_addresses = construire_adresses(address_series)
+    print(cleaned_addresses)
