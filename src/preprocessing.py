@@ -101,11 +101,6 @@ def clean_zipcode(series: pd.Series) -> pd.Series:
 def normalize_names(series: pd.Series) -> pd.Series:
     return series
 
-def normalize_adresses(series: pd.Series) -> pd.Series:
-    return series 
-
-def normalize_zipcodes(series: pd.Series) -> pd.Series:
-    return series
 
 def find_cat_Juridique(series: pd.Series) -> pd.Series:
     catJuridique = pd.Series(index=series.index, dtype=str)

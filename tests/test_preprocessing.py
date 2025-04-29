@@ -109,6 +109,7 @@ def test_hexaposte():
 def test_construire_adresses():
     address_series = pd.Series([
         "12 AVENUE DES CHAMPS ELYSEES",    # Cas standard avec numéro
+        "12 AV DES CHAMPS ELYSEES",    # Cas standard deja normalisé
         "RUE DE LA PAIX",                   # Cas sans numéro
         "PLACE DE L OPERA",                 # Cas sans numéro
         "9 BOULEVARD HAUSSMANN",         # Cas standard avec numéro
@@ -119,6 +120,7 @@ def test_construire_adresses():
 
     expected_series = pd.Series([
         "12 AV DES CHAMPS ELYSEES",    # Avenue normalisée
+        "12 AV DES CHAMPS ELYSEES",    # Avenue déjà normalisée
         "RUE DE LA PAIX",              # Rue normalisée
         "PL DE L OPERA",             # Place normalisée
         "9 BD HAUSSMANN",              # Boulevard normalisé
