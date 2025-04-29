@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pandas
+fuzzywuzzy
+python-Levenshtein
+scikit-learn
+requests
