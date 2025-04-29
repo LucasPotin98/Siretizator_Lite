@@ -35,36 +35,47 @@ class SiretOne(BaseModel):
     agent: SiretAgent
     seuil_confiance: Optional[int] = 150
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "agent": {
+                    "name": "ville de paris",
+                    "address": "place de l'hôtel de ville",
+                    "city": "Paris",
+                    "zipcode": "75004"
+                },
+                "seuil_confiance": 150
+            }
+        }
+
 class SiretBulk(BaseModel):
     agents: List[SiretAgent]
     seuil_confiance: Optional[int] = 150
 
-class SiretDF(BaseModel):
-    csv_base64: str  # Si tu veux envoyer un fichier CSV encodé par exemple
-    seuil_confiance: Optional[int] = 150
+    class Config:
+        schema_extra = {
+            "example": {
+                "agents": [
+                    {
+                        "name": "ville de paris",
+                        "address": "place de l'hôtel de ville",
+                        "city": "Paris",
+                        "zipcode": "75004"
+                    },
+                    {
+                        "name": "université de rouen",
+                        "address": "rue thomas becket",
+                        "city": "mont saint-aignan"
+                    }
+                ],
+                "seuil_confiance": 150
+            }
+        }
 
 
 
 @app.post("/siretize")
-def siretize(request: SiretOne = Body(
-        ...,
-        examples={
-            "exemple_paris": {
-                "summary": "Recherche de la ville de paris",
-                "description": "Recherche de la ville de paris",
-                "value": {
-                    "agent": {
-                        "name": "ville de paris",
-                        "address": "place de l'hotel de ville",
-                        "city": "Paris",
-                        "zipcode": "75004"
-                    },
-                    "seuil_confiance": 150
-                }
-            }
-        }
-    )
-):
+def siretize(request: SiretOne):
     """
     Endpoint pour sirétiser un seul agent.
     """
@@ -95,33 +106,7 @@ def siretize(request: SiretOne = Body(
         return match
 
 @app.post("/siretize_bulk")
-def siretize_bulk(request: SiretBulk = Body(
-        ..., 
-        examples={
-            "exemple_recherche": {
-                "summary": "Recherche pour deux agents",
-                "description": "Deux agents, dont 1 avec des informations incomplètes",
-                "value": {
-                    "agents": [
-                        {
-                            "name": "ville de paris",
-                            "address": "place de l'hotel de ville",
-                            "city": "Paris",
-                            "zipcode": "75004"
-                        },
-                        {
-                            "name": "Universite de Rouen",
-                            "address": "rue thomas becket",
-                            "city": "mont saint-aignan",
-                            "zipcode": None
-                        }
-                    ],
-                    "seuil_confiance": 150
-                }
-            }
-        }
-    )
-):
+def siretize_bulk(request: SiretBulk):
     
 
     df_client = pd.DataFrame([{
