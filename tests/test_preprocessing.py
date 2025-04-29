@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from preprocessing import clean_names, clean_address, clean_city, clean_zipcode,hexaposte,construire_adresses
+from preprocessing import clean_names, clean_address, clean_city, clean_zipcode,hexaposte,construire_adresses,normalize_names
 
 def test_clean_names():
     input_series = pd.Series([
@@ -19,6 +19,30 @@ def test_clean_names():
     ])
     
     output_series = clean_names(input_series)
+    
+    pd.testing.assert_series_equal(output_series, expected_series)
+
+
+
+
+def test_total_names():
+    input_series = pd.Series([
+        "commune de paris", # Minuscule + commune
+        "CA DE MONTPELLIER (departement 3)", # CA + parenthèses avec piège
+        "SIVU INTERCOMMUNAL", # Apostrophe
+        "SOCIÉTÉ ABC",  #Parenthèses
+        None
+    ])
+    expected_series = pd.Series([
+        "MAIRIE DE PARIS",
+        "COMMUNAUTE D AGGLOMERATION DE MONTPELLIER",
+        "SYNDICAT INTERCOM INTERCOMMUNAL",
+        "SOCIETE ABC",
+        None
+    ])
+    
+    output_series = clean_names(input_series)
+    output_series = normalize_names(output_series)
     
     pd.testing.assert_series_equal(output_series, expected_series)
 

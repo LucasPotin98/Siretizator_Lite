@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np 
+import re
 
 
 def clean_names(series: pd.Series) -> pd.Series:
@@ -99,16 +100,23 @@ def clean_zipcode(series: pd.Series) -> pd.Series:
 
 
 def normalize_names(series: pd.Series) -> pd.Series:
-    return series
+    rules = pd.read_csv("data/utils/names.csv", sep=";", encoding="utf-8")
 
+    # 2. Appliquer les règles regex/replacement
+    normalized_series = series.copy()
 
-def find_cat_Juridique(series: pd.Series) -> pd.Series:
-    catJuridique = pd.Series(index=series.index, dtype=str)
-    return catJuridique
+    for _, row in rules.iterrows():
+        pattern = row['regex']
+        replacement = row['replacement']
+        # Appliquer la regex en ignorant la casse (re.IGNORECASE)
+        normalized_series = normalized_series.str.replace(pattern, replacement, regex=True, flags=re.IGNORECASE)
+
+    return normalized_series
+
 
 def hexaposte(ville_serie: pd.Series,zip_serie: pd.Series) -> pd.Series:
     #On load hexaposte
-    hexaposte_df = pd.read_csv('data/raw/hexaposte.csv', sep=';', encoding='utf8', dtype={'code_postal': str})
+    hexaposte_df = pd.read_csv('data/utils/hexaposte.csv', sep=';', encoding='utf8', dtype={'code_postal': str})
     ville_to_cp = dict(zip(hexaposte_df['libelle_d_acheminement'].str.upper(), hexaposte_df['code_postal']))
 
     # On construit une série de CP trouvés via la ville
@@ -131,8 +139,8 @@ def construire_adresses(address_series):
         pd.Series: Série contenant les adresses reconstruites et normalisées.
     """
     # Chargement des correspondances type de voie (chemin fixé en dur)
-    chemin_libelles = "data/raw/Libelle.csv"
-    libellesConvert = pd.read_csv(chemin_libelles, dtype=str)
+    chemin_libelles = "data/utils/Libelle.csv"
+    libellesConvert = pd.read_csv(chemin_libelles,sep=";",dtype=str)
 
     # Copie de la série pour ne pas modifier l'original
     address_clean = address_series.copy()
@@ -174,17 +182,48 @@ def construire_adresses(address_series):
 
     return pd.Series(adresse_finale, index=address_series.index)
     
-# Test de la fonction
-if __name__ == "__main__":
-    # Exemple d'utilisation
-    address_series = pd.Series([
-        "12 AVENUE DES CHAMPS ELYSEES",    # Cas standard avec numéro
-        "RUE DE LA PAIX",                   # Cas sans numéro
-        "PLACE DE L OPERA",                 # Cas sans numéro
-        "9 BOULEVARD HAUSSMANN ",         # Cas standard avec numéro
-        "CHEMIN INCONNU",                    # Adresse sans type reconnu
-        None                                 # Adresse vide
-    ])
-    
-    cleaned_addresses = construire_adresses(address_series)
-    print(cleaned_addresses)
+
+def ajouterCatJuridique(df_client):
+    """
+    Ajoute les colonnes 'catJuridiqueDetecte' et 'typeActiviteDetecte' au DataFrame client
+    """
+
+    # Chargement 
+    mapping_df = pd.read_csv("data/utils/CatJuridique.csv", sep=';')
+
+    cat_detecte = []
+    act_detecte = []
+
+    for _, row in df_client.iterrows():
+        nom_client = row["name"]
+        correspondances = []
+
+        for _, map_row in mapping_df.iterrows():
+            pattern = map_row["Nom"]
+            catjur_list = map_row["catJuridique"].split("-")
+            typeact = map_row["typeActivite"] if map_row["typeActivite"] else None
+
+            if re.search(pattern, nom_client, flags=re.IGNORECASE):
+                for catjur in catjur_list:
+                    correspondances.append((catjur, typeact))
+
+        if correspondances:
+            # Choix simple : prendre la première correspondance
+            cats = "-".join(sorted(set([c[0] for c in correspondances])))
+            act = correspondances[0][1]
+            cat_detecte.append(cats)
+            act_detecte.append(act)
+        else:
+            cat_detecte.append(None)
+            act_detecte.append(None)
+
+    # Ajout des colonnes au DataFrame
+    df_client["catJuridiqueDetecte"] = cat_detecte
+    df_client["typeActiviteDetecte"] = act_detecte
+
+    #STR pour les colonnes
+    df_client["catJuridiqueDetecte"] = df_client["catJuridiqueDetecte"].astype(str)
+    df_client["typeActiviteDetecte"] = df_client["typeActiviteDetecte"].astype(str)
+
+    return df_client
+
