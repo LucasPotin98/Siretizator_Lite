@@ -165,8 +165,5 @@ def siretization(df_clients,df_sirene,seuil_confiance=150):
     #Enrichissement
     df_clients = ajouterCatJuridique(df_clients)
 
-    # 2. Base sirène
-    df_sirene = pd.read_csv("data/processed/sirene.csv",dtype=str)
-
     df_result = match_siret_dataset(df_clients, df_sirene, n_best=100,seuil_confiance=seuil_confiance)
     return df_result
