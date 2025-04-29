@@ -6,3 +6,4 @@ python-Levenshtein
 scikit-learn
 requests
 tqdm
+jinja2
