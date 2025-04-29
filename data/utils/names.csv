@@ -1,0 +1,23 @@
+regex;replacement;commentaire
+CONSEIL DEPARTEMENTAL;DEPARTEMENT;Simplification des conseils départementaux
+CONSEIL GENERAL;DEPARTEMENT;Ancien terme pour conseil départemental
+CONSEIL REGIONAL;REGION;Simplification des conseils régionaux
+CONSEIL MUNICIPAL;COMMUNE;Standardisation des conseils municipaux
+^CHU ;CENTRE HOSPITALIER UNIVERSITAIRE ;Uniformisation des hôpitaux universitaires
+^CH ;CENTRE HOSPITALIER ;Uniformisation des centres hospitaliers
+^CC D(U|E);COMMUNAUTE DE COMMUNE;Correction des communautés de communes
+^CDC D(U|E);COMMUNAUTE DE COMMUNE;Correction des communautés de communes (CDC)
+^CC VAL;COMMUNAUTE DE COMMUNE VAL;Spécialisation sur communauté de commune Val
+^CA ;COMMUNAUTE D AGGLOMERATION ;Normalisation des communautés d'agglomération
+^COMMUNE (D[EU]?);MAIRIE \1;Uniformisation des communes
+^VILLE (D[EU]?);MAIRIE \1;Uniformisation des villes
+^COMMUNAUTE URBAINE;COMMUNAUTE URBAINE;Standardisation des communautés urbaines
+^SYNDICAT MIXTE;SYNDICAT MIXTE;Uniformisation des syndicats mixtes
+^EPCI ;ETABLISSEMENT PUBLIC DE COOPERATION INTERCOMMUNALE;Développement de l'acronyme EPCI
+^METROPOLE ;METROPOLE;Normalisation des métropoles
+^DEPARTEMENT DE;DEPARTEMENT D;Uniformisation des départements
+^CCAS ;CENTRE COMMUNAL D ACTION SOCIALE ;Standardisation des centres d'action sociale
+^SIVU ;SYNDICAT INTERCOM ;Uniformisation des syndicats intercommunaux
+^CAF SA ;CAF SA ;Correction sur CAF SA
+^CAF FRANCE ;CAF FRANCE ;Correction sur CAF France
+^CAF ;CAISSE D ALLOCATION FAMILIALES ;Développement de l'acronyme CAF
