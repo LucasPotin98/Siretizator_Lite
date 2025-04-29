@@ -1,5 +1,6 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, UploadFile, File, Request, Body
+from fastapi.responses import JSONResponse,HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional, List
 import pandas as pd
@@ -13,6 +14,14 @@ app = FastAPI()
 
 # Charger une fois la base SIRENE
 sirene_df = pd.read_csv('data/processed/sirene.csv.gz', compression='gzip', dtype=str)
+
+# Configurer le moteur de templates
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
+
 
 
 # Modèle pour une demande simple
@@ -37,7 +46,25 @@ class SiretDF(BaseModel):
 
 
 @app.post("/siretize")
-def siretize(request: SiretOne):
+def siretize(request: SiretOne = Body(
+        ...,
+        examples={
+            "exemple_paris": {
+                "summary": "Recherche de la ville de paris",
+                "description": "Recherche de la ville de paris",
+                "value": {
+                    "agent": {
+                        "name": "ville de paris",
+                        "address": "place de l'hotel de ville",
+                        "city": "Paris",
+                        "zipcode": "75004"
+                    },
+                    "seuil_confiance": 150
+                }
+            }
+        }
+    )
+):
     """
     Endpoint pour sirétiser un seul agent.
     """
@@ -68,7 +95,35 @@ def siretize(request: SiretOne):
         return match
 
 @app.post("/siretize_bulk")
-def siretize_bulk(request: SiretBulk):
+def siretize_bulk(request: SiretBulk = Body(
+        ..., 
+        examples={
+            "exemple_recherche": {
+                "summary": "Recherche pour deux agents",
+                "description": "Deux agents, dont 1 avec des informations incomplètes",
+                "value": {
+                    "agents": [
+                        {
+                            "name": "ville de paris",
+                            "address": "place de l'hotel de ville",
+                            "city": "Paris",
+                            "zipcode": "75004"
+                        },
+                        {
+                            "name": "Universite de Rouen",
+                            "address": "rue thomas becket",
+                            "city": "mont saint-aignan",
+                            "zipcode": None
+                        }
+                    ],
+                    "seuil_confiance": 150
+                }
+            }
+        }
+    )
+):
+    
+
     df_client = pd.DataFrame([{
         "name": agent.name,
         "address": agent.address,
@@ -95,66 +150,3 @@ def siretize_bulk(request: SiretBulk):
             })
 
     return responses
-
-
-@app.post("/siretize_df")
-def siretize_df(request: SiretDF):
-    """
-    Endpoint pour sirétiser un fichier CSV envoyé en base64.
-    """
-
-    # 1. Décoder le base64
-    try:
-        decoded = base64.b64decode(request.csv_base64)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Erreur de décodage base64 : " + str(e))
-
-    # 2. Lire en DataFrame
-    try:
-        df_client = pd.read_csv(io.BytesIO(decoded))
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Erreur de lecture du CSV : " + str(e))
-
-    # 3. Vérification des colonnes attendues
-    expected_columns = {"name", "address", "city", "zipcode"}
-    if not expected_columns.issubset(df_client.columns):
-        raise HTTPException(status_code=400, detail=f"Le CSV doit contenir au minimum les colonnes {expected_columns}")
-
-    df_result = siretization(df_client, sirene_df, request.seuil_confiance)
-
-    responses = []
-    for i, match in df_result.iterrows():
-        if pd.isna(match["siret_match"]):
-            responses.append({
-                "siret": None,
-                "nom_match": None,
-                "adresse_match": None,
-                "score_total": None,
-                "champ_nom_match": None,
-                "message": "Aucun match trouvé"
-            })
-        else:
-            responses.append({
-                "siret": match["siret_match"],
-                "nom_match": match["nom_match"],
-                "adresse_match": match["adresse_match"],
-                "score_total": match["score_total"],
-                "champ_nom_match": match["champ_nom_match"],
-                "message": None
-            })
-
-    df_response = pd.DataFrame(responses)
-
-    # 7. Fusionner df_client et df_response
-    df_final = pd.concat([df_client.reset_index(drop=True), df_response], axis=1)
-
-    # 8. Conversion du résultat final en CSV
-    stream = io.StringIO()
-    df_final.to_csv(stream, index=False)
-    stream.seek(0)
-
-    return StreamingResponse(
-        stream,
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=siretization_enriched.csv"}
-    )
