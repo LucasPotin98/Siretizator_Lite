@@ -35,8 +35,8 @@ class SiretOne(BaseModel):
     agent: SiretAgent
     seuil_confiance: Optional[int] = 150
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "agent": {
                     "name": "ville de paris",
@@ -47,13 +47,14 @@ class SiretOne(BaseModel):
                 "seuil_confiance": 150
             }
         }
+    }
 
 class SiretBulk(BaseModel):
     agents: List[SiretAgent]
     seuil_confiance: Optional[int] = 150
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "agents": [
                     {
@@ -71,6 +72,7 @@ class SiretBulk(BaseModel):
                 "seuil_confiance": 150
             }
         }
+    }
 
 
 
