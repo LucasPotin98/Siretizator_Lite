@@ -42,6 +42,12 @@ Ce schéma illustre les étapes clés du processus :
 
 ---
 
+## Stack technique
+- Python, pandas, RapidFuzz, FastAPI
+- Déploiement sur Render
+
+---
+
 ##  À propos des données
 
 Les correspondances SIRET sont établies à partir de la base **Sirene®**, fournie par l’Insee.  
