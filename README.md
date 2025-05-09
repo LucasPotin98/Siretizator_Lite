@@ -68,7 +68,7 @@ Le processus de sirétisation utilisé ici a été développé durant ma thèse,
 
 📁 Découvrez les projets associés :  
 - **[Siretizator – GitHub](https://github.com/LucasPotin98/Siretizator)**  
-- **[FoppaInit – GitHub](https://github.com/LucasPotin98/FoppaInit)**
+- **[FoppaInit – GitHub](https://github.com/CompNet/FoppaInit)**
 
 ---
 
