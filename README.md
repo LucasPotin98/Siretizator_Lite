@@ -19,7 +19,7 @@
 
 ##  Schéma du pipeline
 
-![Schéma Siretizator Lite](assets/Schema_Siret.png)
+![Schéma Siretizator Lite](Schema_Siret.png)
 
 Ce schéma illustre les étapes clés du processus :
 
