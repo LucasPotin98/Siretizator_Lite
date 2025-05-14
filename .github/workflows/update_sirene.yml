@@ -2,14 +2,15 @@ name: Commit sirene.csv.gz if changed
 
 on:
   schedule:
-    - cron: '0 6 1 * *'   # Le 1er à 6h UTC (8h France)
-  workflow_dispatch:
+    - cron: '0 9 1 * *'  # Le 1er à 9h UTC → 11h heure France
+  workflow_dispatch:      # Permet de le lancer manuellement depuis l'interface GitHub
 
 jobs:
   push-updated-sirene:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Git config
@@ -17,12 +18,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Commit and push if file changed
+      - name: Commit and push if changed
         run: |
-          git add data/processed/sirene.csv.gz
+          git add data/processed/sirene.csv.gz || echo "Fichier introuvable"
           if git diff --cached --quiet; then
-            echo "✅ No changes to commit"
+            echo " Aucun changement à committer"
           else
             git commit -m "update: sirene.csv.gz for $(date +'%Y-%m-%d')"
-            git push
-          fi
+            git push origin $(git rev-parse --abbrev-ref HEAD)
