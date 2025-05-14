@@ -25,3 +25,4 @@ jobs:
           else
             git commit -m "update: sirene.csv.gz for $(date +'%Y-%m-%d')"
             git push
+          fi
