@@ -19,7 +19,7 @@ jobs:
 
       - name: Commit and push if file changed
         run: |
-          git add dags/data/processed/sirene.csv.gz
+          git add data/processed/sirene.csv.gz
           if git diff --cached --quiet; then
             echo "✅ No changes to commit"
           else
