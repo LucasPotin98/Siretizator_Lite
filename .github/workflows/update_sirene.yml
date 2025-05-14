@@ -22,7 +22,8 @@ jobs:
         run: |
           git add data/processed/sirene.csv.gz || echo "Fichier introuvable"
           if git diff --cached --quiet; then
-            echo " Aucun changement à committer"
+            echo "✅ Aucun changement à committer"
           else
             git commit -m "update: sirene.csv.gz for $(date +'%Y-%m-%d')"
             git push origin $(git rev-parse --abbrev-ref HEAD)
+
