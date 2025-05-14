@@ -20,7 +20,7 @@ jobs:
 
       - name: Commit and push if changed
         run: |
-          git add data/processed/sirene.csv.gz || echo "Fichier introuvable"
+          git add data/processed/sirene.csv.gz
           if git diff --cached --quiet; then
             echo "✅ Aucun changement à committer"
           else
