@@ -41,15 +41,4 @@ with DAG(
         python_callable=_parse_and_save
     )
 
-
-    push_to_github = BashOperator(
-    task_id='push_to_github',
-    bash_command="""
-       cd {REPO_PATH} &&
-        git add data/processed/sirene.csv.gz &&
-        git commit -m "update: sirene.csv.gz for {{ ds }}" &&
-            git push origin main
-        """
-    )
-    
-    download >> parse_and_save >> push_to_github
+    download >> parse_and_save 

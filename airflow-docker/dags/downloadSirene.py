@@ -13,8 +13,9 @@ class DownloadProgressBar(tqdm):
         self.update(blocks * bsize - self.n)
 
 def download_file_with_tqdm(url, filename):
-    with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, desc=filename) as t:
-        urllib.request.urlretrieve(url, filename, reporthook=t.update_to)
+    filename_str = str(filename)
+    with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, desc=filename_str) as t:
+        urllib.request.urlretrieve(url, filename_str, reporthook=t.update_to)
 
 def download_latest_sirene():
     base_dir = Path("/opt/airflow/data")
