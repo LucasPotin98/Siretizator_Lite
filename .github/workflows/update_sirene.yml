@@ -1,0 +1,27 @@
+name: Commit sirene.csv.gz if changed
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'   # Le 1er à 6h UTC (8h France)
+  workflow_dispatch:
+
+jobs:
+  push-updated-sirene:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push if file changed
+        run: |
+          git add dags/data/processed/sirene.csv.gz
+          if git diff --cached --quiet; then
+            echo "✅ No changes to commit"
+          else
+            git commit -m "update: sirene.csv.gz for $(date +'%Y-%m-%d')"
+            git push

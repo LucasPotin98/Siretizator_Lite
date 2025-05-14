@@ -1,0 +1,31 @@
+# ========== DONNÉES ==========
+data/*
+!data/processed/
+
+# ========== AIRFLOW ==========
+airflow.db
+airflow.cfg
+unittests.cfg
+logs/
+__pycache__/
+*.pyc
+
+# ========== ENVIRONNEMENT ==========
+.venv/
+.env
+.envrc
+*.env
+
+# ========== DOCKER ==========
+*.pid
+docker-compose.override.yml
+
+# ========== ÉDITEURS ==========
+.DS_Store
+.vscode/
+.idea/
+
+# ========== TESTS ==========
+coverage/
+*.log
+*.tmp
