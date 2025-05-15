@@ -4,71 +4,86 @@
 
 ---
 
-##  Essayez l'application
+## Essayez l'application
 
-🟢 Application déployée ici :  
-👉 **[Siretizator Lite →](https://siretizator.onrender.com/)**  
-
----
-
-##  Objectif du projet
-
-**Siretizator Lite** est un outil conçu pour faciliter l'enrichissement de bases de données clients en ajoutant les identifiants SIRET correspondants. À partir du nom de l'entreprise et de la commune, l'application utilise des techniques de correspondance floue pour identifier le SIRET le plus probable.
+Application déployée ici :  
+👉 [**Siretizator Lite →](https://siretizator.onrender.com/)**  
 
 ---
 
-##  Schéma du pipeline
+## Objectif du projet
+
+**Siretizator Lite** est un outil simple et rapide pour **sirétiser des bases de données clients**, sous forme d’**application web** et d’**API REST**.  
+À partir du **nom d'une entité** et de sa **commune**, il identifie le **SIRET le plus probable** en s’appuyant sur des techniques de **matching flou**.
+
+---
+
+## Documentation
+
+L’API REST est entièrement documentée et testable via Swagger :  
+👉 [**Documentation interactive → /docs**](https://siretizator.onrender.com/docs)
+
+Endpoints disponibles :
+- `/siretize` : sirétisation individuelle (JSON)
+- `/siretize_bulk` : sirétisation de fichiers CSV
+
+---
+
+## Schéma du pipeline
 
 ![Schéma Siretizator Lite](Schema_Siret.png)
-
-Ce schéma illustre les étapes clés du processus :
 
 ### Étapes du traitement :
 
 1. **Chargement des données**  
-   Le fichier d’entrée contient les noms, villes, et éventuellement adresses ou codes postaux des entités à sirétiser.
+   Le fichier contient les noms, villes, et éventuellement adresses ou codes postaux.
 
 2. **Nettoyage et normalisation**  
-   Les noms et villes sont traités pour homogénéiser les chaînes (typographie, casse, accents…), à l’aide de `pandas`.
+   Homogénéisation des chaînes (accents, casse, typographie) via `pandas`.
 
 3. **Enrichissement métier**  
-   Des variables comme le **code hexaposte** ou la **catégorie juridique** sont ajoutées pour guider le matching.
+   Ajout de variables comme le **code hexaposte** ou la **forme juridique**.
 
 4. **Matching SIRENE**  
-   Le cœur de la sirétisation repose sur un matching flou (`RapidFuzz`) entre les entités à enrichir et la base nationale des entreprises **SIRENE**.
+   Correspondance floue avec la base nationale **SIRENE**, via `RapidFuzz`.
 
 5. **API finale**  
-   Le tout est encapsulé dans une API `FastAPI`, accessible pour des requêtes individuelles ou par lot.
+   Tout le pipeline est encapsulé dans une API `FastAPI`, disponible en ligne.
 
 ---
 
 ## Stack technique
-- Python, pandas, RapidFuzz, FastAPI
-- Déploiement sur Render
+
+- **Python** : `pandas`, `RapidFuzz`, `FastAPI`  
+- **Déploiement** : `Render`  
+- **CI/CD** : `GitHub Actions` 
 
 ---
 
-##  À propos des données
+## Données utilisées
 
-Les correspondances SIRET sont établies à partir de la base **Sirene®**, fournie par l’Insee.  
-Cette base, accessible en open data, est publiée sous la **licence Etalab “Open Licence”**.
+Les correspondances SIRET reposent sur la base **SIRENE®**, maintenue par l’Insee, publiée en open data sous la **licence Etalab “Open Licence”**.
 
-🔗 [sirene.fr](https://www.sirene.fr)  
-🔗 [data.gouv.fr – Sirene](https://www.data.gouv.fr/fr/datasets/r/)
+- 🔗 [sirene.fr](https://www.sirene.fr)  
+- 🔗 [data.gouv.fr – Sirene](https://www.data.gouv.fr/fr/datasets/r/)
 
-Pour des raisons de performance, cette application utilise une **version allégée** de la base Sirene, limitée aux **entités clientes dans les marchés publics** — c’est-à-dire les **acheteurs** tels que les municipalités, régions, ministères, etc.
-
+Pour des raisons de performance, cette version utilise une **extraction ciblée** de la base Sirene, limitée aux **acheteurs publics** (collectivités, ministères, établissements publics).  
+Dataset allégé disponible ici :  
+👉 [Hugging Face – SIRENE_Client](https://huggingface.co/datasets/LucasPotin98/SIRENE_Client)
 
 ---
-###  Application dérivée d’un projet en production
 
-Cette application est une version allégée du projet principal **Siretizator**, conçu pour retrouver les SIRET de n’importe quelle entité (entreprise, collectivité, association...) à partir de données partielles.  
+## Application dérivée d’un projet en production
 
-Le processus de sirétisation utilisé ici a été développé durant ma thèse, dans le cadre de la création de la base **FOPPA** ([lien Zenodo](https://zenodo.org/records/10879932)), qui recense les marchés publics français publiés au TED entre 2010 et 2020.
+Cette version Lite est issue du projet complet **Siretizator**, conçu pour retrouver les SIRET de n’importe quelle entité (entreprise, collectivité, association) à partir de données partielles.
 
-📁 Découvrez les projets associés :  
-- **[Siretizator – GitHub](https://github.com/LucasPotin98/Siretizator)**  
-- **[FoppaInit – GitHub](https://github.com/CompNet/FoppaInit)**
+Le pipeline a été développé dans le cadre de ma thèse, pour la construction de la base **FOPPA**, recensant les marchés publics publiés au TED entre 2010 et 2020.  
+👉[FOPPA sur Zenodo](https://zenodo.org/records/10879932)
+
+### Projets associés
+
+- [Siretizator – GitHub](https://github.com/LucasPotin98/Siretizator)  
+- [FoppaInit – GitHub](https://github.com/CompNet/FoppaInit)
 
 ---
 
@@ -76,4 +91,3 @@ Le processus de sirétisation utilisé ici a été développé durant ma thèse,
 
 Projet développé par **[Lucas Potin](https://lucaspotin98.github.io/)**  
 *Data Scientist – Modélisation & Graphes*
-
