@@ -7,7 +7,7 @@
 ## Essayez l'application
 
 Application déployée ici :  
-👉 [**Siretizator Lite →](https://siretizator.onrender.com/)**  
+👉 [**Siretizator Lite**](https://siretizator.onrender.com/)**  
 
 ---
 
