@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional, List
 import pandas as pd
-from src.siretization import match_siret_ligne, match_siret_dataset,siretization
+from siretizator.siretization import match_siret_ligne, match_siret_dataset,siretization
 import base64
 import io
 from fastapi import HTTPException
