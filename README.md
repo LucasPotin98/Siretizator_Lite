@@ -25,7 +25,7 @@ L’API REST est entièrement documentée et testable via Swagger :
 
 Endpoints disponibles :
 - `/siretize` : sirétisation individuelle (JSON)
-- `/siretize_bulk` : sirétisation de fichiers CSV
+- `/siretize_bulk` : sirétisation groupée (JSON)
 
 ---
 
