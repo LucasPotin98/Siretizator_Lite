@@ -12,7 +12,7 @@ from fastapi.responses import StreamingResponse
 app = FastAPI()
 
 # Charger une fois la base SIRENE
-df_sirene = pd.read_csv(
+sirene_df = pd.read_csv(
     "https://huggingface.co/datasets/LucasPotin98/SIRENE_Client/resolve/main/sirene.csv",
     dtype=str,
     keep_default_na=False
