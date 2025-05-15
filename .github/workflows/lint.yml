@@ -16,7 +16,7 @@ jobs:
 
       - name: Installer Black et Ruff
         run: |
-          pip install black ruff
+          pip install black==23.11.0 ruff
 
       - name: Vérifier le format avec Black
         run: black --check .
