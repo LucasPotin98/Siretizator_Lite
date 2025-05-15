@@ -11,12 +11,19 @@ from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 app = FastAPI()
 
-# Charger une fois la base SIRENE
-sirene_df = pd.read_csv(
-    "https://huggingface.co/datasets/LucasPotin98/SIRENE_Client/resolve/main/sirene.csv",
-    dtype=str,
-    keep_default_na=False
-)
+sirene_df = None
+
+@app.on_event("startup")
+def load_sirene():
+    global sirene_df
+    print("Chargement de la base SIRENE...")
+    sirene_df = pd.read_csv(
+        "https://huggingface.co/datasets/LucasPotin98/SIRENE_Client/resolve/main/sirene.csv",
+        dtype=str,
+        keep_default_na=False
+    )
+    sirene_df = sirene_df.astype(str)
+    print(f"{len(sirene_df)} lignes chargées dans sirene_df")
 
 # Configurer le moteur de templates
 templates = Jinja2Templates(directory="templates")
