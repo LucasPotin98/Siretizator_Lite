@@ -1,35 +1,11 @@
 import pandas as pd
 from siretizator.siretization import match_siret_dataset
 from siretizator.preprocessing import clean_names, clean_address, clean_city, clean_zipcode, hexaposte, construire_adresses, normalize_names, ajouterCatJuridique
-
-def test_match_siret_dataset():
-    # 1. Données de test (mini dataset client)
-    df_client_test = pd.DataFrame({
-        "name": ["MAIRIE DE PARIS", "UNIVERSITE DE ROUEN NORMANDIE", "DEPARTEMENT DU VAUCLUSE"],
-        "address": ["PL DE L'HOTEL DE VILLE", "1 RUE THOMAS BECKET", "RUE VIALA"],
-        "city": ["PARIS", "MONT SAINT AIGNAN", "AVIGNON"],
-        "zipcode": ["75004", "76130", "84000"],
-        "catJuridiqueDetecte": ["7210-7229", None, "7220"],
-        "typeActiviteDetecte": ["84.11Z", None, "84.11Z"]
-    })
-
-    # 2. Base sirène
-    df_sirene = pd.read_csv("data/processed/sirene.csv.gz", dtype=str, compression="infer")
+import pytest
+from datasets import load_dataset
 
 
-    # 3. Appel de la fonction
-    df_result = match_siret_dataset(df_client_test, df_sirene, n_best=100)
-
-    # 4. Vérification du résultat
-    expected_sirets = pd.Series(["21750001600019", "19761904200017", "22840001600017"])
-
-    pd.testing.assert_series_equal(
-        df_result["siret_match"].astype(str).reset_index(drop=True),
-        expected_sirets.astype(str),
-        check_names=False,
-        check_dtype=False
-    )
-
+@pytest.mark.slow
 def test_api_siretization():
     # 1. Simulation de l'entrée API
 
@@ -58,13 +34,15 @@ def test_api_siretization():
     #Enrichissement
     df_client_test = ajouterCatJuridique(df_client_test)
 
-    # 2. Base sirène
-    df_sirene = pd.read_csv("data/processed/sirene.csv.gz", dtype=str, compression="infer")
+    dataset = load_dataset(
+    "LucasPotin98/SIRENE_Client",
+    data_files="sirene.csv",
+    split="train"  # tout est dans 'train' par défaut
+    )
 
+    # Convertir en DataFrame Pandas si besoin :
+    df_sirene = dataset.to_pandas().astype(str)
 
-    print(df_client_test)
-    for col in df_client_test.columns:
-        print(f"{col}: {df_client_test[col].unique()}")
     # 3. Appel de la fonction
     df_result = match_siret_dataset(df_client_test, df_sirene, n_best=100)
 

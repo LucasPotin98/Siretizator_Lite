@@ -9,11 +9,18 @@ import base64
 import io
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
-
+from datasets import load_dataset
 app = FastAPI()
 
 # Charger une fois la base SIRENE
-sirene_df = pd.read_csv('data/processed/sirene.csv.gz', compression='gzip', dtype=str)
+dataset = load_dataset(
+    "LucasPotin98/SIRENE_Client",
+    data_files="sirene.csv",
+    split="train"  # tout est dans 'train' par défaut
+    )
+
+# Convertir en DataFrame Pandas si besoin :
+df_sirene = dataset.to_pandas().astype(str)
 
 # Configurer le moteur de templates
 templates = Jinja2Templates(directory="templates")
