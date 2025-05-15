@@ -1,6 +1,5 @@
 # ========== DONNÉES ==========
 data/*
-!data/processed/
 
 # ========== AIRFLOW ==========
 airflow.db
@@ -29,3 +28,4 @@ docker-compose.override.yml
 coverage/
 *.log
 *.tmp
+siretizator.egg-info/

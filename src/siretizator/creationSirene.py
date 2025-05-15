@@ -7,19 +7,19 @@ df3 = pd.read_csv("../data/raw/ChangementsNoms.csv")
 
 # 1. Filtrer les SIRET commençant par "1" ou "2"
 print(df1)
-df1['siret'] = df1['siret'].astype(str)
-df1 = df1[df1['siret'].str.startswith(('1', '2'))]
+df1["siret"] = df1["siret"].astype(str)
+df1 = df1[df1["siret"].str.startswith(("1", "2"))]
 
 # 2. Garder un seul sigle par SIREN (df2)
-df2 = df2.drop_duplicates(subset='siren', keep='first')
+df2 = df2.drop_duplicates(subset="siren", keep="first")
 
 # 3. Garder l'avant-dernier NomAncien par SIREN (df3)
 # Ajouter un index temporaire pour trier correctement
-df3['_order'] = df3.groupby('siren').cumcount()
+df3["_order"] = df3.groupby("siren").cumcount()
 # Récupérer le rang max par siren
-last_index = df3.groupby('siren')['_order'].transform('max')
+last_index = df3.groupby("siren")["_order"].transform("max")
 # Filtrer pour garder l'avant-dernier uniquement
-df3_filtered = df3[df3['_order'] == last_index - 1].drop(columns=['_order'])
+df3_filtered = df3[df3["_order"] == last_index - 1].drop(columns=["_order"])
 
 # 4. Fusions
 df_merged = df1.merge(df2, on="siren", how="left")

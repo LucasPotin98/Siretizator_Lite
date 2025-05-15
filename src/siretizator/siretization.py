@@ -9,11 +9,24 @@ from siretizator.preprocessing import (
     hexaposte,
     construire_adresses,
     normalize_names,
-    ajouterCatJuridique
+    ajouterCatJuridique,
 )
 
-def match_siret_ligne(nom, adresse, sirene_df, zipcode=None, catJuridiqueDetecte=None, typeActiviteDetecte=None, n_best=5,
-                      seuil_nomUnite=70, seuil_nomEnseigne=70, seuil_nomAncien=75, seuil_sigle=10,seuil_confiance=150):
+
+def match_siret_ligne(
+    nom,
+    adresse,
+    sirene_df,
+    zipcode=None,
+    catJuridiqueDetecte=None,
+    typeActiviteDetecte=None,
+    n_best=5,
+    seuil_nomUnite=70,
+    seuil_nomEnseigne=70,
+    seuil_nomAncien=75,
+    seuil_sigle=10,
+    seuil_confiance=150,
+):
     """
     Cherche les meilleurs candidats pour une ligne client :
     1. Fuzzy matching sur nom (plusieurs champs)
@@ -25,15 +38,15 @@ def match_siret_ligne(nom, adresse, sirene_df, zipcode=None, catJuridiqueDetecte
     # 0. Filtrage initial
     sirene_temp = sirene_df.copy()
 
-    #Si y'a le zipcode, on filtre avec le departement i.e les 2 premiers chiffres
+    # Si y'a le zipcode, on filtre avec le departement i.e les 2 premiers chiffres
     if zipcode:
         sirene_temp = sirene_temp[sirene_temp["cp"].str[:2] == zipcode[:2]]
     if catJuridiqueDetecte and catJuridiqueDetecte != "nan":
-        cat_list = str(catJuridiqueDetecte).split('-')
+        cat_list = str(catJuridiqueDetecte).split("-")
         sirene_temp = sirene_temp[sirene_temp["CatJuridique"].isin(cat_list)]
     if typeActiviteDetecte and typeActiviteDetecte != "nan":
         sirene_temp = sirene_temp[sirene_temp["TypeActivite"] == typeActiviteDetecte]
-    
+
     if sirene_temp.empty:
         return None
     sirene_temp = sirene_temp.reset_index(drop=True)
@@ -53,7 +66,7 @@ def match_siret_ligne(nom, adresse, sirene_df, zipcode=None, catJuridiqueDetecte
             serie.fillna(""),
             scorer=fuzz.token_set_ratio,
             score_cutoff=seuil,
-            limit=n_best
+            limit=n_best,
         )
         for match_str, score, idx in res:
             candidats.append((idx, score, champ))
@@ -84,7 +97,9 @@ def match_siret_ligne(nom, adresse, sirene_df, zipcode=None, catJuridiqueDetecte
         for candidat in candidats_best:
             idx, _, score_nom, score_adr, champ, adr_sirene = candidat
             nom_candidat = str(sirene_temp.iloc[idx]["nomUnite"])
-            score_strict = fuzz.ratio(nom.upper(), nom_candidat.upper())  # Comparaison stricte
+            score_strict = fuzz.ratio(
+                nom.upper(), nom_candidat.upper()
+            )  # Comparaison stricte
             if score_strict > meilleur_score_strict:
                 meilleur_score_strict = score_strict
                 best = candidat
@@ -92,16 +107,26 @@ def match_siret_ligne(nom, adresse, sirene_df, zipcode=None, catJuridiqueDetecte
         return None
     else:
         return {
-                "siret": sirene_temp.iloc[best[0]]["siret"],
-                "nom_match": sirene_temp.iloc[best[0]]["nomUnite"],
-                "adresse_match": best[5],
-                "score_nom": best[2],
-                "score_adr": best[3],
-                "champ_nom": best[4],
-                "score_total": best[1],
-            }
+            "siret": sirene_temp.iloc[best[0]]["siret"],
+            "nom_match": sirene_temp.iloc[best[0]]["nomUnite"],
+            "adresse_match": best[5],
+            "score_nom": best[2],
+            "score_adr": best[3],
+            "champ_nom": best[4],
+            "score_total": best[1],
+        }
 
-def match_siret_dataset(df_client, sirene_df, n_best=5, seuil_nomUnite=70, seuil_nomEnseigne=70, seuil_nomAncien=75, seuil_sigle=100,seuil_confiance=150):
+
+def match_siret_dataset(
+    df_client,
+    sirene_df,
+    n_best=5,
+    seuil_nomUnite=70,
+    seuil_nomEnseigne=70,
+    seuil_nomAncien=75,
+    seuil_sigle=100,
+    seuil_confiance=150,
+):
     """
     Applique le matching siret sur tout un DataFrame df_client.
     df_client : doit contenir au moins les colonnes 'name', 'address', 'city'
@@ -109,10 +134,13 @@ def match_siret_dataset(df_client, sirene_df, n_best=5, seuil_nomUnite=70, seuil
     Retourne df_client enrichi avec les colonnes de matching
     """
     from tqdm import tqdm
+
     tqdm.pandas()  # pour avoir une barre de progression dans .apply()
 
     # Créer une colonne adresse complète pour matcher
-    df_client["full_address"] = df_client["address"].fillna('') + " " + df_client["city"].fillna('')
+    df_client["full_address"] = (
+        df_client["address"].fillna("") + " " + df_client["city"].fillna("")
+    )
 
     # Appliquer ligne par ligne
     df_client["match_result"] = df_client.progress_apply(
@@ -128,29 +156,35 @@ def match_siret_dataset(df_client, sirene_df, n_best=5, seuil_nomUnite=70, seuil
             seuil_nomEnseigne=seuil_nomEnseigne,
             seuil_nomAncien=seuil_nomAncien,
             seuil_sigle=seuil_sigle,
-            seuil_confiance=seuil_confiance
+            seuil_confiance=seuil_confiance,
         ),
-        axis=1
+        axis=1,
     )
 
     # Extraire les résultats dans des colonnes
-    df_client["siret_match"] = df_client["match_result"].apply(lambda x: x["siret"] if x else None)
-    df_client["nom_match"] = df_client["match_result"].apply(lambda x: x["nom_match"] if x else None)
-    df_client["adresse_match"] = df_client["match_result"].apply(lambda x: x["adresse_match"] if x else None)
-    df_client["score_total"] = df_client["match_result"].apply(lambda x: x["score_total"] if x else 0)
-    df_client["champ_nom_match"] = df_client["match_result"].apply(lambda x: x["champ_nom"] if x else None)
+    df_client["siret_match"] = df_client["match_result"].apply(
+        lambda x: x["siret"] if x else None
+    )
+    df_client["nom_match"] = df_client["match_result"].apply(
+        lambda x: x["nom_match"] if x else None
+    )
+    df_client["adresse_match"] = df_client["match_result"].apply(
+        lambda x: x["adresse_match"] if x else None
+    )
+    df_client["score_total"] = df_client["match_result"].apply(
+        lambda x: x["score_total"] if x else 0
+    )
+    df_client["champ_nom_match"] = df_client["match_result"].apply(
+        lambda x: x["champ_nom"] if x else None
+    )
 
     return df_client
 
 
-
-
-def siretization(df_clients,df_sirene,seuil_confiance=150):
-
-     ## Nettoyage des données
+def siretization(df_clients, df_sirene, seuil_confiance=150):
+    ## Nettoyage des données
     df_clients["name"] = clean_names(df_clients["name"])
     df_clients["name"] = normalize_names(df_clients["name"])
-
 
     #
     df_clients["city"] = clean_city(df_clients["city"])
@@ -162,8 +196,10 @@ def siretization(df_clients,df_sirene,seuil_confiance=150):
     df_clients["address"] = clean_address(df_clients["address"])
     df_clients["address"] = construire_adresses(df_clients["address"])
 
-    #Enrichissement
+    # Enrichissement
     df_clients = ajouterCatJuridique(df_clients)
 
-    df_result = match_siret_dataset(df_clients, df_sirene, n_best=100,seuil_confiance=seuil_confiance)
+    df_result = match_siret_dataset(
+        df_clients, df_sirene, n_best=100, seuil_confiance=seuil_confiance
+    )
     return df_result

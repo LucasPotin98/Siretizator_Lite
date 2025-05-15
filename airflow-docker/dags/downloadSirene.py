@@ -6,16 +6,21 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+
 class DownloadProgressBar(tqdm):
     def update_to(self, blocks=1, bsize=1, tsize=None):
         if tsize is not None:
             self.total = tsize
         self.update(blocks * bsize - self.n)
 
+
 def download_file_with_tqdm(url, filename):
     filename_str = str(filename)
-    with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, desc=filename_str) as t:
+    with DownloadProgressBar(
+        unit="B", unit_scale=True, miniters=1, desc=filename_str
+    ) as t:
         urllib.request.urlretrieve(url, filename_str, reporthook=t.update_to)
+
 
 def download_latest_sirene():
     base_dir = Path("/opt/airflow/data")
@@ -39,9 +44,7 @@ def download_latest_sirene():
     os.remove(base_dir / "StockUniteLegale_utf8.zip")
 
 
-
 def parse_sirene(chunksize=100000):
-
     base_dir = Path("/opt/airflow/data")
     etab_path = base_dir / "sireneEtab/StockEtablissement_utf8.csv"
     unite_path = base_dir / "sireneUnite/StockUniteLegale_utf8.csv"
@@ -50,14 +53,16 @@ def parse_sirene(chunksize=100000):
     dicoNom = {}
     dicoType = {}
 
-    for chunk in pd.read_csv(unite_path, chunksize=chunksize, dtype=str, low_memory=False):
+    for chunk in pd.read_csv(
+        unite_path, chunksize=chunksize, dtype=str, low_memory=False
+    ):
         chunk = chunk.fillna("")
         first_siren = chunk.iloc[0]["siren"]
 
         # Early stop : si tout le chunk est au-delà des clients
         if first_siren[0] >= "3":
             break
-        
+
         # Filtrer uniquement les SIRET clients (1 ou 2)
         chunk = chunk[chunk["siren"].str.startswith(("1", "2"))]
         if chunk.empty:
@@ -80,11 +85,12 @@ def parse_sirene(chunksize=100000):
             dicoNom[siren] = temp
             dicoType[siren] = row["categorieJuridiqueUniteLegale"]
 
-
     # Partie établissement
     all_data = []
 
-    for chunk in pd.read_csv(etab_path, chunksize=chunksize, dtype=str, low_memory=False):
+    for chunk in pd.read_csv(
+        etab_path, chunksize=chunksize, dtype=str, low_memory=False
+    ):
         chunk = chunk.fillna("")
 
         # Early stop : si tout le chunk est au-delà des clients
@@ -125,9 +131,38 @@ def parse_sirene(chunksize=100000):
             else:
                 nomEnseigne = nomUnite
 
-            rows.append((siret, siren, nomEnseigne, nomUnite, num, typevoie, libelle, cp, ville, activite, catJuridique))
+            rows.append(
+                (
+                    siret,
+                    siren,
+                    nomEnseigne,
+                    nomUnite,
+                    num,
+                    typevoie,
+                    libelle,
+                    cp,
+                    ville,
+                    activite,
+                    catJuridique,
+                )
+            )
 
-        df_chunk = pd.DataFrame(rows, columns=["siret", "siren", "nomEnseigne", "nomUnite", "num", "typevoie", "libelle", "cp", "ville", "TypeActivite", "CatJuridique"])
+        df_chunk = pd.DataFrame(
+            rows,
+            columns=[
+                "siret",
+                "siren",
+                "nomEnseigne",
+                "nomUnite",
+                "num",
+                "typevoie",
+                "libelle",
+                "cp",
+                "ville",
+                "TypeActivite",
+                "CatJuridique",
+            ],
+        )
         df_chunk["ville"] = (
             df_chunk["ville"]
             .str.replace(r"[0-9]+", "", regex=True)
@@ -144,7 +179,6 @@ def parse_sirene(chunksize=100000):
     # Astuce pour les mairies
     mask = df_final["nomEnseigne"] == "MAIRIE"
     df_final.loc[mask, "nomEnseigne"] = "MAIRIE DE " + df_final.loc[mask, "ville"]
-
 
     # Supprimer les fichiers CSV initiaux
     etab_path.unlink()

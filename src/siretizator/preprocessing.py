@@ -1,30 +1,33 @@
 import pandas as pd
-import numpy as np 
+import numpy as np
 import re
 
 
 def clean_names(series: pd.Series) -> pd.Series:
     # Convertir tout en majuscule
     series = series.str.upper()
-    
-    # Normalisation des caractères accentués
-    series = series.str.normalize('NFKD').apply(lambda x: x.encode('ascii', errors='ignore').decode('utf-8') if pd.notnull(x) else x)
 
-    
+    # Normalisation des caractères accentués
+    series = series.str.normalize("NFKD").apply(
+        lambda x: x.encode("ascii", errors="ignore").decode("utf-8")
+        if pd.notnull(x)
+        else x
+    )
+
     # Règles de nettoyage supplémentaires
     rules = {
-        r"&APOS;"          : " ",  # Remplacer &APOS; par un espace
-        r"'"               : " ",  # Remplacer l'apostrophe par un espace
-        r"-"               : " ",  # Remplacer le tiret par un espace
-        r"\([^)]*\)"       : "",  # Supprimer tout ce qui est entre parenthèses
-        r";[A-Z, ]+"       : "",  # Supprimer les fragments après un point-virgule
-        r"- [A-Z, ]+"      : "",  # Supprimer les fragments après un tiret
-        r"\s+"             : " ",  # Remplacer plusieurs espaces par un seul
+        r"&APOS;": " ",  # Remplacer &APOS; par un espace
+        r"'": " ",  # Remplacer l'apostrophe par un espace
+        r"-": " ",  # Remplacer le tiret par un espace
+        r"\([^)]*\)": "",  # Supprimer tout ce qui est entre parenthèses
+        r";[A-Z, ]+": "",  # Supprimer les fragments après un point-virgule
+        r"- [A-Z, ]+": "",  # Supprimer les fragments après un tiret
+        r"\s+": " ",  # Remplacer plusieurs espaces par un seul
     }
-    
+
     # Appliquer les règles et nettoyer les espaces
     series = series.replace(rules, regex=True).str.strip()
-    
+
     # Retourner la série nettoyée
     return series
 
@@ -32,65 +35,70 @@ def clean_names(series: pd.Series) -> pd.Series:
 def clean_address(series: pd.Series) -> pd.Series:
     # Tout en majuscule
     series = series.str.upper()
-    
-    # Normalisation unicode (suppression des accents)
-    series = series.str.normalize('NFKD').apply(lambda x: x.encode('ascii', errors='ignore').decode('utf-8') if pd.notnull(x) else x)
 
-    
+    # Normalisation unicode (suppression des accents)
+    series = series.str.normalize("NFKD").apply(
+        lambda x: x.encode("ascii", errors="ignore").decode("utf-8")
+        if pd.notnull(x)
+        else x
+    )
+
     # Règles de nettoyage
     rules = {
-        r"&APOS;"           : " ",     # Remplacer &APOS; par un espace
-        r"&AMP"             : "&",     # Remplacer &AMP par &
-        r"(\d);"            : r"\1 ",  # Ajouter un espace après un chiffre suivi d'un point-virgule
-        r"(\d)-(\d):"       : r"\1 ",  # Ajouter un espace après un chiffre suivi d'un tiret et d'un deux-points
-        r"(\d)/(\d)"        : r"\1 ",  # Ajouter un espace après un chiffre suivi d'un slash
-        r"(\d);(\d)"        : r"\1 ",  # Ajouter un espace après un chiffre suivi d'un point-virgule
-        r"BIS"              : "",      # Supprimer "BIS"
-        r"([A-Z])-([A-Z])"  : r"\1 \2",# Séparer deux lettres majuscules jointes par un tiret
-        r"'"                : " ",     # Remplacer l'apostrophe par un espace
-        r";"                : " ; ",   # Ajouter des espaces autour des points-virgules
-        r"(^[A-Z])"         : r" \1",   # Ajouter un espace devant la première lettre majuscule
-        r" +"               : " ",     # Remplacer plusieurs espaces par un seul
-        r"\bBP [0-9, ]+"     : "",      # Supprimer les boîtes postales (BP)
-        r"\bCEDEX [0-9, ]+"  : " ",     # Supprimer CEDEX et numéro
-        r"\bCS [0-9, ]+"     : " ",     # Supprimer CS et numéro
+        r"&APOS;": " ",  # Remplacer &APOS; par un espace
+        r"&AMP": "&",  # Remplacer &AMP par &
+        r"(\d);": r"\1 ",  # Ajouter un espace après un chiffre suivi d'un point-virgule
+        r"(\d)-(\d):": r"\1 ",  # Ajouter un espace après un chiffre suivi d'un tiret et d'un deux-points
+        r"(\d)/(\d)": r"\1 ",  # Ajouter un espace après un chiffre suivi d'un slash
+        r"(\d);(\d)": r"\1 ",  # Ajouter un espace après un chiffre suivi d'un point-virgule
+        r"BIS": "",  # Supprimer "BIS"
+        r"([A-Z])-([A-Z])": r"\1 \2",  # Séparer deux lettres majuscules jointes par un tiret
+        r"'": " ",  # Remplacer l'apostrophe par un espace
+        r";": " ; ",  # Ajouter des espaces autour des points-virgules
+        r"(^[A-Z])": r" \1",  # Ajouter un espace devant la première lettre majuscule
+        r" +": " ",  # Remplacer plusieurs espaces par un seul
+        r"\bBP [0-9, ]+": "",  # Supprimer les boîtes postales (BP)
+        r"\bCEDEX [0-9, ]+": " ",  # Supprimer CEDEX et numéro
+        r"\bCS [0-9, ]+": " ",  # Supprimer CS et numéro
     }
-    
+
     # Application des règles
     series = series.replace(rules, regex=True).str.strip()
-    
-    return series
 
+    return series
 
 
 def clean_city(series: pd.Series) -> pd.Series:
     # Tout en majuscule
     series = series.str.upper()
-    
-    # Normalisation unicode (suppression des accents)
-    series = series.str.normalize('NFKD').apply(lambda x: x.encode('ascii', errors='ignore').decode('utf-8') if pd.notnull(x) else x)
 
-    
+    # Normalisation unicode (suppression des accents)
+    series = series.str.normalize("NFKD").apply(
+        lambda x: x.encode("ascii", errors="ignore").decode("utf-8")
+        if pd.notnull(x)
+        else x
+    )
+
     # Règles de nettoyage
     rules = {
-        r"CEDEX"    : "",   # Supprimer "CEDEX"
-        r"-"        : " ",  # Remplacer tirets par espaces
-        r" SP "     : "",   # Supprimer " SP "
-        r"&APOS;"   : " ",  # Remplacer &APOS; par espace
-        r"'"        : " ",  # Remplacer apostrophes par espace
-        r"\d"       : "",   # Supprimer tous les chiffres
-        r"\)"       : "",   # Supprimer les parenthèses fermantes
-        r"\("       : "",   # Supprimer les parenthèses ouvrantes
-        r"\s+"      : " ",  # Remplacer plusieurs espaces par un seul 
+        r"CEDEX": "",  # Supprimer "CEDEX"
+        r"-": " ",  # Remplacer tirets par espaces
+        r" SP ": "",  # Supprimer " SP "
+        r"&APOS;": " ",  # Remplacer &APOS; par espace
+        r"'": " ",  # Remplacer apostrophes par espace
+        r"\d": "",  # Supprimer tous les chiffres
+        r"\)": "",  # Supprimer les parenthèses fermantes
+        r"\(": "",  # Supprimer les parenthèses ouvrantes
+        r"\s+": " ",  # Remplacer plusieurs espaces par un seul
     }
-    
+
     # Application des règles
     series = series.replace(rules, regex=True).str.strip()
 
     # Dans Hexaposte : ST X est représenté par SAINT X
     # On converti alors les ST en début de ville en SAINT
     series = series.str.replace(r"\bST\b", "SAINT", regex=True)
-    
+
     return series
 
 
@@ -106,22 +114,31 @@ def normalize_names(series: pd.Series) -> pd.Series:
     normalized_series = series.copy()
 
     for _, row in rules.iterrows():
-        pattern = row['regex']
-        replacement = row['replacement']
+        pattern = row["regex"]
+        replacement = row["replacement"]
         # Appliquer la regex en ignorant la casse (re.IGNORECASE)
-        normalized_series = normalized_series.str.replace(pattern, replacement, regex=True, flags=re.IGNORECASE)
+        normalized_series = normalized_series.str.replace(
+            pattern, replacement, regex=True, flags=re.IGNORECASE
+        )
 
     return normalized_series
 
 
-def hexaposte(ville_serie: pd.Series,zip_serie: pd.Series) -> pd.Series:
-    #On load hexaposte
-    hexaposte_df = pd.read_csv('data/utils/hexaposte.csv', sep=';', encoding='utf8', dtype={'code_postal': str})
-    ville_to_cp = dict(zip(hexaposte_df['libelle_d_acheminement'].str.upper(), hexaposte_df['code_postal']))
+def hexaposte(ville_serie: pd.Series, zip_serie: pd.Series) -> pd.Series:
+    # On load hexaposte
+    hexaposte_df = pd.read_csv(
+        "data/utils/hexaposte.csv", sep=";", encoding="utf8", dtype={"code_postal": str}
+    )
+    ville_to_cp = dict(
+        zip(
+            hexaposte_df["libelle_d_acheminement"].str.upper(),
+            hexaposte_df["code_postal"],
+        )
+    )
 
     # On construit une série de CP trouvés via la ville
     zip_trouve = ville_serie.map(ville_to_cp)
-    
+
     # Si CP original est NaN, on prend celui trouvé via Hexaposte
     zip_complet = zip_serie.fillna(zip_trouve)
 
@@ -131,7 +148,7 @@ def hexaposte(ville_serie: pd.Series,zip_serie: pd.Series) -> pd.Series:
 def construire_adresses(address_series):
     """
     Normalise et reconstruit les adresses à partir d'une série d'adresses.
-    
+
     Args:
         address_series (pd.Series): Série contenant les adresses brutes.
 
@@ -140,7 +157,7 @@ def construire_adresses(address_series):
     """
     # Chargement des correspondances type de voie (chemin fixé en dur)
     chemin_libelles = "data/utils/Libelle.csv"
-    libellesConvert = pd.read_csv(chemin_libelles,sep=";",dtype=str)
+    libellesConvert = pd.read_csv(chemin_libelles, sep=";", dtype=str)
 
     # Copie de la série pour ne pas modifier l'original
     address_clean = address_series.copy()
@@ -148,8 +165,10 @@ def construire_adresses(address_series):
     # Remplacement des types de voie
     for idx, row in libellesConvert.iterrows():
         Seekingpattern = r"\b" + row["Nom_Voie"] + r"\b"
-        Appliedpattern = row["Nom_Voie_Nomalise"] 
-        address_clean = address_clean.replace(regex=Seekingpattern, value=Appliedpattern)
+        Appliedpattern = row["Nom_Voie_Nomalise"]
+        address_clean = address_clean.replace(
+            regex=Seekingpattern, value=Appliedpattern
+        )
 
     # Compilation des motifs
     listeLibel = "|".join(libellesConvert["Nom_Voie_Nomalise"])
@@ -166,30 +185,24 @@ def construire_adresses(address_series):
 
     # Reconstruction des adresses
     adresse_finale = (
-        num_voie.fillna('') +
-        " " + 
-        code_voie.fillna('') + 
-        " " + 
-        libel_voie.fillna('')
+        num_voie.fillna("") + " " + code_voie.fillna("") + " " + libel_voie.fillna("")
     ).str.strip()
 
     # Si l'extraction a échoué, on remet l'adresse originale
     adresse_finale = np.where(
-        (code_voie.isna()) | (libel_voie.isna()), 
-        address_clean, 
-        adresse_finale
+        (code_voie.isna()) | (libel_voie.isna()), address_clean, adresse_finale
     )
 
     return pd.Series(adresse_finale, index=address_series.index)
-    
+
 
 def ajouterCatJuridique(df_client):
     """
     Ajoute les colonnes 'catJuridiqueDetecte' et 'typeActiviteDetecte' au DataFrame client
     """
 
-    # Chargement 
-    mapping_df = pd.read_csv("data/utils/CatJuridique.csv", sep=';')
+    # Chargement
+    mapping_df = pd.read_csv("data/utils/CatJuridique.csv", sep=";")
 
     cat_detecte = []
     act_detecte = []
@@ -221,9 +234,8 @@ def ajouterCatJuridique(df_client):
     df_client["catJuridiqueDetecte"] = cat_detecte
     df_client["typeActiviteDetecte"] = act_detecte
 
-    #STR pour les colonnes
+    # STR pour les colonnes
     df_client["catJuridiqueDetecte"] = df_client["catJuridiqueDetecte"].astype(str)
     df_client["typeActiviteDetecte"] = df_client["typeActiviteDetecte"].astype(str)
 
     return df_client
-
