@@ -1,18 +1,11 @@
-from fastapi import FastAPI, UploadFile, File, Request, Body
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional, List
 import pandas as pd
-from siretizator.siretization import (
-    match_siret_ligne,
-    match_siret_dataset,
-    siretization,
-)
-import base64
-import io
-from fastapi import HTTPException
-from fastapi.responses import StreamingResponse
+from siretizator.siretization import siretization
+
 
 app = FastAPI()
 

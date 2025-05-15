@@ -4,7 +4,6 @@ from siretizator.preprocessing import (
     clean_names,
     clean_address,
     clean_city,
-    clean_zipcode,
     hexaposte,
     construire_adresses,
     normalize_names,

@@ -1,16 +1,13 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.operators.bash import BashOperator
 from datetime import datetime
 import sys
-import os
 from pathlib import Path
+from downloadSirene import download_latest_sirene, parse_sirene, save_sirene_dataset
 
 sys.path.append("/opt/airflow/data")
 DATA_DIR = Path("/opt/airflow/data")
 DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-from downloadSirene import download_latest_sirene, parse_sirene, save_sirene_dataset
 
 default_args = {"start_date": datetime(2024, 1, 1), "catchup": False}
 

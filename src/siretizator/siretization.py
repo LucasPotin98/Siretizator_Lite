@@ -1,5 +1,3 @@
-import pandas as pd
-import sqlite3
 from rapidfuzz import process, fuzz
 from siretizator.preprocessing import (
     clean_names,
