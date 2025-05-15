@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "siretizator"
+version = "0.1.0"
+description = "API de sirétisation des entités"
+authors = [{ name="Lucas Potin", email="lpotin888@gmail.com" }]
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

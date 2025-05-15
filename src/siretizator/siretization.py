@@ -1,7 +1,7 @@
 import pandas as pd
 import sqlite3
 from rapidfuzz import process, fuzz
-from src.preprocessing import (
+from siretizator.preprocessing import (
     clean_names,
     clean_address,
     clean_city,

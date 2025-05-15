@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from preprocessing import clean_names, clean_address, clean_city, clean_zipcode,hexaposte,construire_adresses,normalize_names
+from siretizator.preprocessing import clean_names, clean_address, clean_city, clean_zipcode,hexaposte,construire_adresses,normalize_names
 
 def test_clean_names():
     input_series = pd.Series([

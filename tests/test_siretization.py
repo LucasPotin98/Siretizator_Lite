@@ -1,6 +1,6 @@
 import pandas as pd
-from siretization import match_siret_dataset
-from preprocessing import clean_names, clean_address, clean_city, clean_zipcode, hexaposte, construire_adresses, normalize_names, ajouterCatJuridique
+from siretizator.siretization import match_siret_dataset
+from siretizator.preprocessing import clean_names, clean_address, clean_city, clean_zipcode, hexaposte, construire_adresses, normalize_names, ajouterCatJuridique
 
 def test_match_siret_dataset():
     # 1. Données de test (mini dataset client)
@@ -14,7 +14,8 @@ def test_match_siret_dataset():
     })
 
     # 2. Base sirène
-    df_sirene = pd.read_csv("data/processed/sirene.csv", dtype=str)
+    df_sirene = pd.read_csv("data/processed/sirene.csv.gz", dtype=str, compression="infer")
+
 
     # 3. Appel de la fonction
     df_result = match_siret_dataset(df_client_test, df_sirene, n_best=100)
@@ -58,7 +59,8 @@ def test_api_siretization():
     df_client_test = ajouterCatJuridique(df_client_test)
 
     # 2. Base sirène
-    df_sirene = pd.read_csv("data/processed/sirene.csv",dtype=str)
+    df_sirene = pd.read_csv("data/processed/sirene.csv.gz", dtype=str, compression="infer")
+
 
     print(df_client_test)
     for col in df_client_test.columns:
